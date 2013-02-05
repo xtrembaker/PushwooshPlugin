@@ -22,21 +22,21 @@ class PushwooshDevicesConsumer extends PushwooshAppModel {
   /**
    * Return true if one record was found using those keys in parameters
    * 
-   * @param type $push_device
+   * @param type $push_token
    * @param type $hw_id
    * @return boolean
    */
-  public function checkDeviceAlreadyExists($push_device = null, $hwid = null){
-    if(!isset($push_device) 
+  public function checkDeviceAlreadyExists($push_token = null, $hwid = null){
+    if(!isset($push_token) 
         && !isset($hwid) 
-        && array_key_exists('push_device', $this->data[$this->alias])
+        && array_key_exists('push_token', $this->data[$this->alias])
         && array_key_exists('hwid', $this->data[$this->alias])){
-      $push_device = $this->data[$this->alias]['push_device'];
+      $push_token = $this->data[$this->alias]['push_token'];
       $hwid = $this->data[$this->alias]['hwid'];
     }
     $count = $this->find('count', array(
         'conditions' => array(
-            $this->alias.'.push_device' => $push_device,
+            $this->alias.'.push_token' => $push_token,
             $this->alias.'.hwid' => $hwid
         ))
     );
@@ -56,9 +56,9 @@ class PushwooshDevicesConsumer extends PushwooshAppModel {
   public function __construct($id = false, $table = NULL, $ds = NULL) {
     parent::__construct($id, $table, $ds);
     $this->validate = array(
-        'push_device' => array(
+        'push_token' => array(
             'rule' => 'notEmpty',
-            'message' => __d('PushwooshPlugin','Model.PushwooshDeviceConsumer.validate.push_device', true)
+            'message' => __d('PushwooshPlugin','Model.PushwooshDeviceConsumer.validate.push_token', true)
         ),
         'hw_id' => array(
             'rule' => 'notEmpty',
@@ -96,14 +96,14 @@ class PushwooshDevicesConsumer extends PushwooshAppModel {
   
   /**
    * 
-   * @param type $push_device
+   * @param type $push_token
    * @param type $hwid
    * @return boolean
    */
-  public function getDeviceConsumerByDeviceData($push_device, $hwid){
+  public function getDeviceConsumerByDeviceData($push_token, $hwid){
     $record = $this->find('first', array(
         'conditions' => array(
-            $this->alias.'.push_device' => $push_device,
+            $this->alias.'.push_token' => $push_token,
             $this->alias.'.hwid' => $hwid
         )
     ));
