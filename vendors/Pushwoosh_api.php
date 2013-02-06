@@ -1,6 +1,6 @@
 <?php
 
-class Pushwoosh{
+class PushwooshApi{
   
   /**
    * API Token
