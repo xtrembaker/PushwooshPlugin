@@ -1,23 +1,38 @@
 <?php
 class PushwooshDevicesConsumer extends PushwooshAppModel {
+  
+  /**
+   * Class name
+   * 
+   * @var string
+   * @author arnaudbusson
+   */
 	var $name = 'PushwooshDevicesConsumer';
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
   
+  /**
+   * Validator
+   * 
+   * @var array
+   * @author arnaudbusson
+   */
   var $validate = array();
   
   /**
-   * BeforeValidate callback
+   * $hasAndBelongsToMany
    * 
-   * @param type $options
-   * @return boolean
+   * @var array 
+   * @author arnaudbusson
    */
-//  public function beforeValidate($options = array()) {
-//    parent::beforeValidate($options);
-//    if(true === $this->checkDeviceAlreadyExists()){
-//      return false;
-//    }
-//    return true;
-//  }
+  var $hasAndBelongsToMany = array(
+      'PushwooshGroup' => array(
+          'className' => 'Pushwoosh.PushwooshGroup',
+          'joinTable' => 'pushwoosh_groups_devices',
+          'foreignKey' => 'pushwoosh_devices_consumer_id',
+          'associationForeignKey' => 'pushwoosh_group_id',
+          'with' => 'PushwooshGroupsDevice'
+      )
+  );
   
   /**
    * Return true if one record was found using those keys in parameters
@@ -25,6 +40,7 @@ class PushwooshDevicesConsumer extends PushwooshAppModel {
    * @param type $push_token
    * @param type $hw_id
    * @return boolean
+   * @author arnaudbusson
    */
   public function checkDeviceAlreadyExists($push_token = null, $hwid = null){
     if(!isset($push_token) 
@@ -63,42 +79,35 @@ class PushwooshDevicesConsumer extends PushwooshAppModel {
         'hw_id' => array(
             'rule' => 'notEmpty',
             'message' => __d('PushwooshPlugin','Model.PushwooshDeviceConsumer.validate.hw_id', true)
+        ),
+        // Used when validating HABTM from PushwooshGroup model
+        'PushwooshDevicesConsumer' => array(
+            'rule' => 'validatePushwooshDevicesConsumer',
+            'message' => __d('PushwooshPlugin','Model.PushwooshDeviceConsumer.validate.habtm', true)
         )
     );
   }
   
   /**
+   * Check validation for "PushwooshDevicesConsumer"
    * 
-   * 
-   * @param type $foreign_key
-   * @param type $model
+   * @return boolean
+   * @author arnaudbusson
    */
-  public function checkConsumerHasAlreadyDevice($foreign_key, $model){
-    $count = $this->find('count', array(
-        'conditions' => array(
-            'PushwooshDevice.foreign_key' => $foreign_key,
-            'PushwooshDevice.model' => $model
-          )
-    ));
-    if($count > 0){
-      return true;
-    }
-    return false;
-  }
-  
-  public function deleteConsumerDevice($foreign_key, $model){
-    $conditions = array(
-            'PushwooshDeviceConsumer.foreign_key' => $id,
-            'PushwooshDeviceConsumer.model' => 'Consumer'
-          );
-    $this->deleteAll($conditions);
+  public function validatePushwooshDevicesConsumer(){
+    if(!empty($this->data['PushwooshDevicesConsumer']['PushwooshDevicesConsumer'])) {
+         return true;
+     }
+     return false;
   }
   
   /**
-   * 
+   * Return a PushwooshDevicesConsumer record according to parameters
+   *  
    * @param type $push_token
    * @param type $hwid
    * @return boolean
+   * @author arnaudbusson
    */
   public function getDeviceConsumerByDeviceData($push_token, $hwid){
     $record = $this->find('first', array(
@@ -114,22 +123,22 @@ class PushwooshDevicesConsumer extends PushwooshAppModel {
   }
   
   /**
+   * Return all push_token associated with the $devices_consumers_id key
    * 
-   * @param type $foreign_key
-   * @param type $model
-   * @return boolean
+   * @param type $devices_consumers_id
+   * @return array
+   * @author arnaudbusson
    */
-  public function getDeviceConsumerByConsumerData($foreign_key, $model){
-    $record = $this->find('first', array(
-        'conditions' => array(
-            $this->alias.'.foreign_key' => $foreign_key,
-            $this->alias.'.model' => $model
-        )
+  public function getAllPushTokenByDeviceConsumerId($devices_consumers_id){
+    $push_token = $this->find('all', array(
+        'fields' => array('PushwooshDevicesConsumer.push_token'),
+        'conditions' => array('PushwooshDevicesConsumer.id' => $devices_consumers_id),
+        'recursive' => -1
     ));
-    if(!empty($record)){
-      return $record;
+    if(!empty($push_token)){
+      return Set::extract('/PushwooshDevicesConsumer/push_token', $push_token);
     }
-    return false;
+    return array();
   }
   
 }
