@@ -8,7 +8,7 @@ class PushwooshApi{
    * @var string
    * @author arnaudbusson
    */
-  public $pw_auth = 'MJidGxXMjorkwqldaqH2vktvVXZQfMYDButpxPDIRCFh4Tx2rcsAko2p8PdL57aWVgwNp4nTqo++FFOu3JfP';
+  public $pw_auth;
   
   /**
    * Application Code
@@ -16,7 +16,7 @@ class PushwooshApi{
    * @var string
    * @author arnaudbusson
    */
-  public $pw_application = 'B477A-5ED44';
+  public $pw_application;
   
   /**
    * Devices (push_token) you'd like to send the message
@@ -33,6 +33,11 @@ class PushwooshApi{
    * @author arnaudbusson
    */
   public $content = array('fr' => '', 'en' => '');
+  
+  public function __construct($api_key, $pw_application) {
+    $this->pw_auth = $api_key;
+    $this->pw_application = $pw_application;
+  }
   
   /**
    * doPostRequest

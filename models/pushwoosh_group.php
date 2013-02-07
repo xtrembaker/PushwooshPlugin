@@ -135,4 +135,45 @@ class PushwooshGroup extends PushwooshAppModel {
     ));
   }
   
+  /**
+   * Prepare Data for pagination
+   * 
+   * @return type
+   * @author arnaudbusson
+   */
+  public function prepareDataForPagination(){
+    return array('fields' => array(
+            'COUNT(PushwooshGroupsDevice.pushwoosh_devices_consumer_id) AS count',
+            'PushwooshGroup.id',
+            'PushwooshGroup.name',
+            'PushwooshGroup.created'
+        ),
+        'joins' => array(
+            array(
+                'table' => 'pushwoosh_groups_devices',
+                'alias' => 'PushwooshGroupsDevice',
+                'type' => 'left',
+                'conditions' => array(
+                    'PushwooshGroup.id = PushwooshGroupsDevice.pushwoosh_group_id'
+                )
+            )
+        ),
+        'group' => array('PushwooshGroup.id'),
+        'recursive' => -1
+    );
+  }
+  
+  /**
+   * Override's paginateCount
+   * 
+   * @param type $conditions
+   * @param type $recursive
+   * @param type $extra
+   * @return type
+   * @author arnaudbusson
+   */
+  public function paginateCount($conditions = null, $recursive = 0, $extra = array()){
+    return count($this->find('all', $this->prepareDataForPagination()));
+  }
+  
 }

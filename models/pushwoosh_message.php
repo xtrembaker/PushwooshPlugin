@@ -119,6 +119,58 @@ class PushwooshMessage extends PushwooshAppModel {
   }
   
   /**
+   * Return a list of all PushWoosh Messages
+   * 
+   * @author arnaudbusson
+   */
+  public function prepareDataForPagination(){
+    return array(
+        'fields' => array(
+            'COUNT(PushwooshConsumersMessage.pushwoosh_devices_consumer_id) as consumers_reached',
+            'COUNT(PushwooshGroupsMessage.pushwoosh_group_id) as groups_reached',
+            'PushwooshMessage.content',
+            'PushwooshMessage.sent_date',
+            'PushwooshMessage.created',
+            'PushwooshMessage.id'
+            
+        ),
+        'joins' => array(
+            array(
+                'table' => 'pushwoosh_groups_messages',
+                'alias' => 'PushwooshGroupsMessage',
+                'type' => 'left',
+                'conditions' => array(
+                    'PushwooshGroupsMessage.pushwoosh_message_id = PushwooshMessage.id'
+                )
+            ),
+            array(
+                'table' => 'pushwoosh_consumers_messages',
+                'alias' => 'PushwooshConsumersMessage',
+                'type' => 'left',
+                'conditions' => array(
+                    'PushwooshConsumersMessage.pushwoosh_message_id = PushwooshMessage.id'
+                )
+            )
+        ),
+        'recursive' => -1,
+        'group' => array('PushwooshMessage.id')
+    );
+  }
+  
+  /**
+   * Customize count Pagination
+   * 
+   * @param type $conditions
+   * @param type $recursive
+   * @param type $extra
+   * @return type
+   * @author arnaudbusson
+   */
+  public function paginateCount($conditions = null, $recursive = 0, $extra = array()){
+    return count($this->find('all', $this->prepareDataForPagination()));
+  }
+  
+  /**
    * Return a list of all push_token according to the message id passed in
    * parameter
    * 
